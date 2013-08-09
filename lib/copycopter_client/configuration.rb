@@ -16,7 +16,9 @@ module CopycopterClient
         :http_open_timeout, :http_read_timeout, :client_name, :client_url,
         :client_version, :port, :protocol, :proxy_host, :proxy_pass,
         :proxy_port, :proxy_user, :secure, :polling_delay, :logger,
-        :framework, :middleware, :ca_file].freeze
+        :framework, :middleware, :ca_file, :i18n_prefixes_to_exclude,
+        :ignore_i18n_defaults
+    ].freeze
 
     # @return [String] The API key for your project, found on the project edit form.
     attr_accessor :api_key
@@ -87,6 +89,12 @@ module CopycopterClient
     # @return [Client] instance used to communicate with a Copycopter Server.
     attr_accessor :client
 
+    # @return [Array] List of I18n key prefixes to ignore
+    attr_accessor :i18n_prefixes_to_exclude
+
+    # @return [Boolean] +true+ to ignore sending I18n defaults
+    attr_accessor :ignore_i18n_defaults
+
     alias_method :secure?, :secure
 
     # Instantiated from {CopycopterClient.configure}. Sets defaults.
@@ -102,6 +110,8 @@ module CopycopterClient
       self.polling_delay = 300
       self.secure = false
       self.test_environments = %w(test cucumber)
+      self.ignore_i18n_defaults = true
+      self.i18n_prefixes_to_exclude = []
       @applied = false
     end
 
@@ -168,7 +178,7 @@ module CopycopterClient
       self.cache ||= Cache.new(client, to_hash)
       poller = Poller.new(cache, to_hash)
       process_guard = ProcessGuard.new(cache, poller, to_hash)
-      I18n.backend = I18nBackend.new(cache)
+      I18n.backend = I18nBackend.new(cache, to_hash)
 
       if middleware && development?
         middleware.use RequestSync, :cache => cache
@@ -222,3 +232,4 @@ module CopycopterClient
     end
   end
 end
+

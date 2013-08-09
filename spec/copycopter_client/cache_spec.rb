@@ -82,7 +82,7 @@ describe CopycopterClient::Cache do
   it "blocks until the first download is complete" do
     logger = FakeLogger.new
     logger.stubs(:flush)
-    client.delay = 0.5
+    client.delay = 2
     cache = build_cache(:logger => logger)
 
     Thread.new { cache.download }
@@ -93,7 +93,7 @@ describe CopycopterClient::Cache do
       finished = true
     end
 
-    sleep(1)
+    sleep(5)
 
     finished.should == true
     logger.should have_entry(:info, "Waiting for first download")

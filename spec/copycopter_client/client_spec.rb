@@ -187,6 +187,34 @@ describe CopycopterClient do
     project.reload.draft.should == blurbs
   end
 
+  it "ignores blank blurbs" do
+    project = add_project
+
+    blurbs = {
+      'key.one' => '',
+      'key.two' => 'expected two'
+    }
+
+    client = build_client(:api_key => project.api_key, :public => true)
+    client.upload(blurbs)
+
+    project.reload.draft.should == { 'key.two' => 'expected two' }
+  end
+
+  it "ignores keys with prefix specified by i18n_prefixes_to_exclude" do
+    project = add_project
+
+    blurbs = {
+      'key.one' => 'expected one',
+      'key.two' => 'expected two'
+    }
+
+    client = build_client(:api_key => project.api_key, :public => true, :i18n_prefixes_to_exclude => %w(one))
+    client.upload(blurbs)
+
+    project.reload.draft.should == { 'key.two' => 'expected two' }
+  end
+
   it "logs that it performed an upload" do
     logger = FakeLogger.new
     client = build_client_with_project(:logger => logger)

@@ -1,30 +1,19 @@
 When "I generate a rails application" do
-  if Rails::VERSION::MAJOR == 3
-    subcommand = 'new'
-    if Rails::VERSION::MINOR == 0
-      options = ''
-    else
-      options = '--skip-bundle'
-    end
-  else
-    subcommand = ''
-    options = ''
-  end
+  subcommand = 'new'
+  options = '--skip-bundle'
 
   run_simple("rails _#{Rails::VERSION::STRING}_ #{subcommand} testapp #{options}")
   cd("testapp")
 
-  if Rails::VERSION::MAJOR == 3
-    append_to_file("Gemfile", <<-GEMS)
-      gem "thin"
-      gem "sham_rack"
-      gem "sinatra"
-      gem "json"
-    GEMS
-    run_simple("bundle install --local")
+  append_to_file("Gemfile", <<-GEMS)
+    gem "thin"
+    gem "sham_rack"
+    gem "sinatra"
+    gem "json"
+  GEMS
+  run_simple("bundle install --local")
 
-    When %{I remove lines containing "rjs" from "config/environments/development.rb"}
-  end
+  When %{I remove lines containing "rjs" from "config/environments/development.rb"}
 end
 
 When /^I configure the copycopter client with api key "([^"]*)"$/ do |api_key|
@@ -170,3 +159,4 @@ end
 After do
   RailsServer.stop
 end
+

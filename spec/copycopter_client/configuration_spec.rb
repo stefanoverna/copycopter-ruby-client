@@ -45,6 +45,8 @@ describe CopycopterClient::Configuration do
   it { should have_config_option(:middleware).overridable }
   it { should have_config_option(:client).overridable }
   it { should have_config_option(:cache).overridable }
+  it { should have_config_option(:ignore_i18n_defaults).overridable }
+  it { should have_config_option(:i18n_prefixes_to_exclude).overridable }
 
   it 'should provide default values for secure connections' do
     config = CopycopterClient::Configuration.new
@@ -75,7 +77,8 @@ describe CopycopterClient::Configuration do
     [:api_key, :environment_name, :host, :http_open_timeout,
       :http_read_timeout, :client_name, :client_url, :client_version, :port,
       :protocol, :proxy_host, :proxy_pass, :proxy_port, :proxy_user, :secure,
-      :development_environments, :logger, :framework, :ca_file].each do |option|
+      :development_environments, :logger, :framework, :ca_file,
+      :i18n_prefixes_to_exclude, :ignore_i18n_defaults].each do |option|
       hash[option].should == config[option]
     end
 
@@ -214,7 +217,7 @@ share_examples_for 'applied configuration' do
   it { should be_applied }
 
   it 'builds and assigns an I18n backend' do
-    CopycopterClient::I18nBackend.should have_received(:new).with(cache)
+    CopycopterClient::I18nBackend.should have_received(:new).with(cache, subject.to_hash)
     I18n.backend.should == backend
   end
 

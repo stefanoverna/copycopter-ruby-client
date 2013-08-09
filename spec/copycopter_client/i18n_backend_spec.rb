@@ -2,9 +2,10 @@ require 'spec_helper'
 
 describe CopycopterClient::I18nBackend do
   let(:cache) { {} }
+  let(:config) { {} }
 
   def build_backend
-    backend = CopycopterClient::I18nBackend.new(cache)
+    backend = CopycopterClient::I18nBackend.new(cache, config)
     I18n.backend = backend
     backend
   end
@@ -56,6 +57,18 @@ describe CopycopterClient::I18nBackend do
     subject.translate('en', 'test.key', :default => default).should == default
 
     cache['en.test.key'].should == default
+  end
+
+  context "with ignore_i18n_defaults" do
+    let(:config) { { ignore_i18n_defaults: true } }
+
+    it "does not queue missing keys with default" do
+      default = 'default value'
+
+      subject.translate('en', 'test.key', :default => default).should == default
+
+      cache['en.test.key'].should be_empty
+    end
   end
 
   it "queues missing keys without default" do
@@ -155,3 +168,4 @@ describe CopycopterClient::I18nBackend do
     end
   end
 end
+

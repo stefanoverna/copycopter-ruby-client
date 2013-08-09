@@ -27,7 +27,8 @@ module CopycopterClient
     # @option options [String] :ca_file path to root certificate file for ssl verification
     def initialize(options)
       [:api_key, :host, :port, :public, :http_read_timeout,
-        :http_open_timeout, :secure, :logger, :ca_file].each do |option|
+        :http_open_timeout, :secure, :logger, :ca_file,
+        :i18n_prefixes_to_exclude].each do |option|
         instance_variable_set "@#{option}", options[option]
       end
     end
@@ -64,7 +65,7 @@ module CopycopterClient
     # @raise [ConnectionError] if the connection fails
     def upload(data)
       connect do |http|
-        response = http.post(uri('draft_blurbs'), data.to_json, 'Content-Type' => 'application/json')
+        response = http.post(uri('draft_blurbs'), filter(data).to_json, 'Content-Type' => 'application/json')
         check response
         log 'Uploaded missing translations'
       end
@@ -83,7 +84,20 @@ module CopycopterClient
     private
 
     attr_reader :host, :port, :api_key, :http_read_timeout,
-      :http_open_timeout, :secure, :logger, :ca_file
+      :http_open_timeout, :secure, :logger, :ca_file, :i18n_prefixes_to_exclude
+
+    def filter(data)
+      filtered_data = data.select do |key, value|
+        if !value || value.empty?
+          false
+        else
+          key_tokens = key.split(".")
+          key_tokens.shift
+          key = key_tokens.join(".")
+          !key.start_with?(*i18n_prefixes_to_exclude)
+        end
+      end
+    end
 
     def public?
       @public
@@ -134,3 +148,4 @@ module CopycopterClient
     end
   end
 end
+

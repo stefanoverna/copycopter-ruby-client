@@ -15,8 +15,9 @@ module CopycopterClient
 
     # Usually instantiated when {Configuration#apply} is invoked.
     # @param cache [Cache] must act like a hash, returning and accept blurbs by key.
-    def initialize(cache)
+    def initialize(cache, config = {})
       @cache = cache
+      @ignore_i18n_defaults = config[:ignore_i18n_defaults]
     end
 
     # Translates the given local and key. See the I18n API documentation for details.
@@ -53,6 +54,8 @@ module CopycopterClient
 
     private
 
+    attr_reader :ignore_i18n_defaults
+
     def lookup(locale, key, scope = [], options = {})
       parts = I18n.normalize_keys(locale, key, scope, options[:separator])
       key_with_locale = parts.join('.')
@@ -79,7 +82,7 @@ module CopycopterClient
 
     def default(locale, object, subject, options = {})
       content = super(locale, object, subject, options)
-      if content.respond_to?(:to_str)
+      if !ignore_i18n_defaults && content.respond_to?(:to_str)
         parts = I18n.normalize_keys(locale, object, options[:scope], options[:separator])
         key = parts.join('.')
         cache[key] = content.to_str
@@ -90,3 +93,4 @@ module CopycopterClient
     attr_reader :cache
   end
 end
+
