@@ -28,7 +28,7 @@ module CopycopterClient
     def initialize(options)
       [:api_key, :host, :port, :public, :http_read_timeout,
         :http_open_timeout, :secure, :logger, :ca_file,
-        :i18n_prefixes_to_exclude].each do |option|
+        :i18n_prefixes_to_exclude, :locales].each do |option|
         instance_variable_set "@#{option}", options[option]
       end
     end
@@ -84,7 +84,8 @@ module CopycopterClient
     private
 
     attr_reader :host, :port, :api_key, :http_read_timeout,
-      :http_open_timeout, :secure, :logger, :ca_file, :i18n_prefixes_to_exclude
+      :http_open_timeout, :secure, :logger, :ca_file, :i18n_prefixes_to_exclude,
+      :locales
 
     def filter(data)
       filtered_data = data.select do |key, value|
@@ -92,9 +93,11 @@ module CopycopterClient
           false
         else
           key_tokens = key.split(".")
-          key_tokens.shift
+          locale = key_tokens.shift
           key = key_tokens.join(".")
-          !key.start_with?(*i18n_prefixes_to_exclude)
+          drop_locale = locales.any? && !locales.include?(locale)
+          drop_prefix = key.start_with?(*i18n_prefixes_to_exclude)
+          !drop_locale && !drop_prefix
         end
       end
     end

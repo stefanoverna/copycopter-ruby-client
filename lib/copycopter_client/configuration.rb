@@ -17,7 +17,7 @@ module CopycopterClient
         :client_version, :port, :protocol, :proxy_host, :proxy_pass,
         :proxy_port, :proxy_user, :secure, :polling_delay, :logger,
         :framework, :middleware, :ca_file, :i18n_prefixes_to_exclude,
-        :ignore_i18n_defaults
+        :ignore_i18n_defaults, :locales
     ].freeze
 
     # @return [String] The API key for your project, found on the project edit form.
@@ -92,6 +92,9 @@ module CopycopterClient
     # @return [Array] List of I18n key prefixes to ignore
     attr_accessor :i18n_prefixes_to_exclude
 
+    # @return [Array] List of locales to import
+    attr_accessor :locales
+
     # @return [Boolean] +true+ to ignore sending I18n defaults
     attr_accessor :ignore_i18n_defaults
 
@@ -112,6 +115,7 @@ module CopycopterClient
       self.test_environments = %w(test cucumber)
       self.ignore_i18n_defaults = true
       self.i18n_prefixes_to_exclude = []
+      self.locales = []
       @applied = false
     end
 
