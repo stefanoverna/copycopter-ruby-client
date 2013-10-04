@@ -13,7 +13,7 @@ Installation
 
 In your `Gemfile`:
 
-    gem 'copycopter_client'
+    gem 'copycopter_client', github: 'stefanoverna/copycopter-ruby-client'
 
 Run:
 
@@ -24,6 +24,8 @@ In your `config/initializers/copycopter.rb`:
     CopycopterClient.configure do |config|
       config.api_key = 'YOUR API KEY HERE'
       config.host = 'your-copycopter-server.herokuapp.com'
+      config.i18n_prefixes_to_exclude = %w(activemodel.errors activerecord.errors countries datetime errors number support)
+      config.ignore_i18n_defaults = true
     end
 
 The API key is on the project page. See `CopycopterClient::Configuration` for
