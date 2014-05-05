@@ -29,13 +29,14 @@ module CopycopterClient
       lock {
         value = @blurbs[key]
         unless value
-          value = Hash[
+          subkeys = Hash[
             subkeys = @blurbs.select do |blurb_key, value|
               blurb_key =~ %r{^#{key}\.[^\.]+$}
             end.map do |blurb_key, value|
               [blurb_key.sub(key + '.', '').to_sym, value]
             end
           ]
+          value = subkeys if subkeys.any?
         end
         value
       }
