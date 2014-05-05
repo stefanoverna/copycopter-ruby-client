@@ -26,7 +26,19 @@ module CopycopterClient
     # @param key [String] the key of the desired blurb
     # @return [String] the contents of the blurb
     def [](key)
-      lock { @blurbs[key] }
+      lock {
+        value = @blurbs[key]
+        unless value
+          value = Hash[
+            subkeys = @blurbs.select do |blurb_key, value|
+              blurb_key =~ %r{^#{key}\.[^\.]+$}
+            end.map do |blurb_key, value|
+              [blurb_key.sub(key + '.', '').to_sym, value]
+            end
+          ]
+        end
+        value
+      }
     end
 
     # Sets content for the given blurb. The content will be pushed to the
