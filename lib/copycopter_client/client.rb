@@ -93,9 +93,9 @@ module CopycopterClient
           false
         else
           key_tokens = key.split(".")
-          locale = key_tokens.shift
+          locale = key_tokens.shift.to_sym
           key = key_tokens.join(".")
-          drop_locale = locales.any? && !locales.include?(locale)
+          drop_locale = locales.any? && !locales.map(&:to_sym).include?(locale)
           drop_prefix = key.start_with?(*i18n_prefixes_to_exclude)
           !drop_locale && !drop_prefix
         end
